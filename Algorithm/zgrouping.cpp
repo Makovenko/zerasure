@@ -1,11 +1,13 @@
 /*
 zgrouping.cpp
 Tianli Zhou
+Mykyta Makovenko
 
 Fast Erasure Coding for Data Storage: A Comprehensive Study of the Acceleration Techniques
+Revisiting the Optimization of CauchyReed-Solomon Coding Matrix for Fault-Tolerant Data Storage
 
-Revision 1.0
-Mar 20, 2019
+Revision 1.1
+April, 2021
 
 Tianli Zhou
 Department of Electrical & Computer Engineering
@@ -13,7 +15,14 @@ Texas A&M University
 College Station, TX, 77843
 zhoutianli01@tamu.edu
 
+Mykyta Makovenko
+Department of Industrial & Systems Engineering
+Texas A&M University
+College Station, TX, 77843
+makovenko@tamu.edu
+
 Copyright (c) 2019, Tianli Zhou
+Copyright (c) 2021, Mykyta Makovenko
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -21,16 +30,16 @@ modification, are permitted provided that the following conditions
 are met:
 
 - Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
+ notice, this list of conditions and the following disclaimer.
 
 - Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in
-  the documentation and/or other materials provided with the
-  distribution.
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
 
 - Neither the name of the Texas A&M University nor the names of its
-  contributors may be used to endorse or promote products derived
-  from this software without specific prior written permission.
+ contributors may be used to endorse or promote products derived
+ from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -55,10 +64,11 @@ extern "C"{
 #include <sys/time.h>
 #include <x86intrin.h>
 #include "../Search/zelement.h"
+#include "zmatrixfactory.hpp"
 
 #define talloc(type, num) (type *) malloc(sizeof(type)*(num))
 
-ZGrouping::ZGrouping(int tK, int tM, int tW, vector<int>& arr, bool isNormal, bool isWeightedGrouping, int m_packagesize): ZCode(tK,tM,tW,m_packagesize)
+ZGrouping::ZGrouping(int tK, int tM, int tW, vector<int>& arr, bool isNormal, bool isWeightedGrouping, int m_packagesize,std::shared_ptr<MatrixFactory> matrixFactory): ZCode(tK,tM,tW,m_packagesize)
 {
     struct timeval t0,t1;
     gettimeofday(&t0,NULL);
@@ -68,10 +78,10 @@ ZGrouping::ZGrouping(int tK, int tM, int tW, vector<int>& arr, bool isNormal, bo
     for(int i = 0;i<arr.size();i++)
         printf("%d ", arr[i]);
     printf("\n");
-    matrix = cauchy_xy_coding_matrix(K,M,W,arr.data()+K,arr.data());
+    matrix = matrixFactory->produce(K, M, W, arr);
     if(isNormal)
-        cauchy_improve_coding_matrix(K,M,W,matrix);
-    bitmatrix = jerasure_matrix_to_bitmatrix(K,M,W,matrix);
+        cauchy_improve_coding_matrix(K,M,W,matrix.get());
+    bitmatrix = jerasure_matrix_to_bitmatrix(K,M,W,matrix.get());
 
 //        printf("Generator Matrix:\n");
 //        jerasure_print_matrix(matrix,M,K,W);

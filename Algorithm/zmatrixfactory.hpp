@@ -1,20 +1,14 @@
 /*
-zcauchy.h
-Tianli Zhou
+zmatrixfactory.h
 Mykyta Makovenko
 
 Fast Erasure Coding for Data Storage: A Comprehensive Study of the Acceleration Techniques
-Revisiting the Optimization of CauchyReed-Solomon Coding Matrix for Fault-Tolerant Data Storage
  
-Revision 1.1
+Revisiting the Optimization of CauchyReed-Solomon Coding Matrix for Fault-TolerantData Storage
+
+Revision 1.0
 April, 2021
 
-Tianli Zhou
-Department of Electrical & Computer Engineering
-Texas A&M University
-College Station, TX, 77843
-zhoutianli01@tamu.edu
- 
 Mykyta Makovenko
 Department of Industrial & Systems Engineering
 Texas A&M University
@@ -22,7 +16,7 @@ College Station, TX, 77843
 makovenko@tamu.edu
 
 Copyright (c) 2019, Tianli Zhou
-Copyright (c) 2021, Mykyta Makovenko
+          (c) 2021, Mykyta Makovenko
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -54,38 +48,38 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
 WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ZCAUCHY_H
-#define ZCAUCHY_H
-#include <stdlib.h>
-#include <string.h>
-#include <map>
+#ifndef ZMATRIXFACTORY_H
+#define ZMATRIXFACTORY_H
 extern "C"{
 #include "../Jerasure-1.2A/jerasure.h"
 #include "../Jerasure-1.2A/cauchy.h"
 }
-#include <cassert>
 #include <vector>
 #include <memory>
-#include "zcode.h"
-using namespace std;
 
-class MatrixFactory;
-
-class ZCauchy : public ZCode
-{
+class MatrixFactory {
 public:
-    ZCauchy(int tK, int tM, int tW, vector<int> &arr, bool isSmart, bool isNormal, int packetsize, std::shared_ptr<MatrixFactory> matrixFactory);
-    ~ZCauchy();
-    void encode_single_chunk(char* data, int len, char**& parities);
-    void set_erasure(vector<int> arr);
-    void decode_single_chunk(char** &data, char** &parities);
-    int* bitmatrix;
-private:
-    int **en_schedule;
-    int **de_schedule;
-    char** encode_buf;
-    int* erasures;
-    map<unsigned long long, int**> de_schedules_map;
+  MatrixFactory() {}
+  virtual ~MatrixFactory() {}
+  virtual std::unique_ptr<int> produce(int K, int M, int W, std::vector<int>& data) = 0;
 };
 
-#endif // ZCAUCHY_H
+class CauchyMatrixFactory: public MatrixFactory {
+public:
+  CauchyMatrixFactory() {}
+  virtual ~CauchyMatrixFactory() {}
+  std::unique_ptr<int> produce(int K, int M, int W, std::vector<int>& data) override final {
+    return std::unique_ptr<int>(cauchy_xy_coding_matrix(K,M,W,data.data()+K,data.data()));
+  }
+};
+
+class ExtendedCauchyMatrixFactory: public MatrixFactory {
+public:
+  ExtendedCauchyMatrixFactory() {}
+  virtual ~ExtendedCauchyMatrixFactory() {}
+  std::unique_ptr<int> produce(int K, int M, int W, std::vector<int>& data) override final {
+    return std::unique_ptr<int>(ecauchy_xy_coding_matrix(K,M,W,data.data()+K,data.data(),data.data()+K+M+K, data.data()+K+M));
+  }
+};
+
+#endif // ZMATRIXFACTORY_H

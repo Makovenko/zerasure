@@ -1,19 +1,28 @@
 /*
 zcauchy.cpp
 Tianli Zhou
+Mykyta Makovenko
 
 Fast Erasure Coding for Data Storage: A Comprehensive Study of the Acceleration Techniques
-
-Revision 1.0
-Mar 20, 2019
+Revisiting the Optimization of CauchyReed-Solomon Coding Matrix for Fault-Tolerant Data Storage
+ 
+Revision 1.1
+April, 2021
 
 Tianli Zhou
 Department of Electrical & Computer Engineering
 Texas A&M University
 College Station, TX, 77843
 zhoutianli01@tamu.edu
+ 
+Mykyta Makovenko
+Department of Industrial & Systems Engineering
+Texas A&M University
+College Station, TX, 77843
+makovenko@tamu.edu
 
 Copyright (c) 2019, Tianli Zhou
+Copyright (c) 2021, Mykyta Makovenko
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -48,18 +57,19 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "zcauchy.h"
 #include <sys/time.h>
 #include "../Search/zelement.h"
+#include "zmatrixfactory.hpp"
 
-ZCauchy::ZCauchy(int tK, int tM, int tW, vector<int> &arr, bool isSmart, bool isNormal, int m_packetsize): ZCode(tK,1,1,m_packetsize)
+ZCauchy::ZCauchy(int tK, int tM, int tW, vector<int> &arr, bool isSmart, bool isNormal, int m_packetsize, std::shared_ptr<MatrixFactory> matrixFactory): ZCode(tK,1,1,m_packetsize)
 {
     K = tK;
     M = tM;
     W = tW;
     struct timeval t0,t1;
     gettimeofday(&t0,NULL);
-    int *matrix = cauchy_xy_coding_matrix(K,M,W,arr.data()+K,arr.data());
+    shared_ptr<int> matrix = matrixFactory->produce(K, M, W, arr);
     if(isNormal)
-        cauchy_improve_coding_matrix(K,M,W,matrix);
-    bitmatrix = jerasure_matrix_to_bitmatrix(K,M,W,matrix);
+        cauchy_improve_coding_matrix(K,M,W,matrix.get());
+    bitmatrix = jerasure_matrix_to_bitmatrix(K,M,W,matrix.get());
     if(!isSmart)
         en_schedule = jerasure_dumb_bitmatrix_to_schedule(K,M,W,bitmatrix);
     else
@@ -82,12 +92,11 @@ ZCauchy::ZCauchy(int tK, int tM, int tW, vector<int> &arr, bool isSmart, bool is
     printf(" !!! Cauchy Schedule Len %d, memcpy %d, xor %d, cost %d, init time %d us\n",
            i, n_cpy, n_xor, n_cpy*ZElement::cpy_weight + ZElement::xor_weight*n_xor,init_time);
     printf("Generator Matrix:\n");
-    jerasure_print_matrix(matrix,M,K,W);
+    jerasure_print_matrix(matrix.get(),M,K,W);
     printf("Bitmatrix :\n");
     jerasure_print_bitmatrix(bitmatrix,M*W,K*W,W);
     encode_buf = malloc2d(K, W*packetsize);
     erasures = (int*) malloc(sizeof(int) * (K+M));
-    free(matrix);
     blocksize =  packetsize * K * W;
 }
 
@@ -143,7 +152,7 @@ void ZCauchy::set_erasure(vector<int> arr)
 void ZCauchy::decode_single_chunk(char **&data, char **&parities)
 {
     char **ptrs;
-    ptrs = set_up_ptrs_for_scheduled_decoding(K, M, erasures, data, parities);   
+    ptrs = set_up_ptrs_for_scheduled_decoding(K, M, erasures, data, parities);
     jerasure_do_scheduled_operations(ptrs, de_schedule, packetsize);
     free(ptrs);
 }

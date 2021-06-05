@@ -75,7 +75,12 @@ void usage()
 
     printf("\t... | ./zerasure code packetsize strategy[0..7]\n");
     printf("\t\t- Read K,M,W,X,Y from stdin, generate schedule for given\n");
+    printf("\t\tusing cost function [cost_func] and strategy [strategy]\n\n");
+  
+    printf("\t... | ./zerasure ecode packetsize strategy[0..4]\n");
+    printf("\t\t- Read K,M,W,X,Y,R,S from stdin, generate schedule for given\n");
     printf("\t\tusing cost function [cost_func] and strategy [strategy]\n");
+    printf("\t\tusing Extended Cauchy Reed-Solomon codes\n");
 }
 
 int main(int argc, char *argv[])
@@ -107,7 +112,7 @@ int main(int argc, char *argv[])
     if(strcmp(argv[1], "ge") == 0)
         ZExample::ge(argc,argv);
 
-    if(strcmp(argv[1], "code") == 0)
+    if(strcmp(argv[1], "code") == 0 || strcmp(argv[1], "ecode") == 0)
         ZExample::code(argc,argv);
 
     printf("\n\n *********  End zerasure **********\n\n");

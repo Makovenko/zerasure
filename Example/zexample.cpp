@@ -1,11 +1,13 @@
 /*
 zexample.cpp
 Tianli Zhou
+Mykyta Makovenko
 
 Fast Erasure Coding for Data Storage: A Comprehensive Study of the Acceleration Techniques
+Revisiting the Optimization of CauchyReed-Solomon Coding Matrix for Fault-Tolerant Data Storage
 
-Revision 1.0
-Mar 20, 2019
+Revision 1.1
+April, 2021
 
 Tianli Zhou
 Department of Electrical & Computer Engineering
@@ -13,7 +15,14 @@ Texas A&M University
 College Station, TX, 77843
 zhoutianli01@tamu.edu
 
+Mykyta Makovenko
+Department of Industrial & Systems Engineering
+Texas A&M University
+College Station, TX, 77843
+makovenko@tamu.edu
+
 Copyright (c) 2019, Tianli Zhou
+Copyright (c) 2021, Mykyta Makovenko
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -21,16 +30,16 @@ modification, are permitted provided that the following conditions
 are met:
 
 - Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
+ notice, this list of conditions and the following disclaimer.
 
 - Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in
-  the documentation and/or other materials provided with the
-  distribution.
+ notice, this list of conditions and the following disclaimer in
+ the documentation and/or other materials provided with the
+ distribution.
 
 - Neither the name of the Texas A&M University nor the names of its
-  contributors may be used to endorse or promote products derived
-  from this software without specific prior written permission.
+ contributors may be used to endorse or promote products derived
+ from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -55,6 +64,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "../Search/zgenetic.h"
 #include "../Algorithm/zcauchy.h"
 #include "../Algorithm/zgrouping.h"
+#include "../Algorithm/zmatrixfactory.hpp"
 using namespace std;
 
 ZExample::ZExample()
@@ -155,18 +165,21 @@ void ZExample::ge(int argc, char *argv[])
 
 void ZExample::code(int argc, char *argv[])
 {
+    bool extended = strcmp(argv[1], "ecode")==0?true:false;
     if(argc == 4)
     {
         int K,M,W,packetsize,stra;
         cin >> K >> M >> W;
         packetsize = atoi(argv[2]);
         stra = atoi(argv[3]);
-        vector<int> arr(K+M,0);
-        for(int i = 0;i<K+M;i++)
+        int arrsize = K+M;
+        if (extended) arrsize += K+M;
+        vector<int> arr(arrsize,0);
+        for(int i = 0;i<arrsize;i++)
             cin >> arr[i];
 
         printf("packetsize = %d, strategy = %d, K = %d, M = %d, W = %d, arr = ",packetsize,stra,K,M,W);
-        for(int i = 0;i<K+M;i++)
+        for(int i = 0;i<arrsize;i++)
             printf("%d ",arr[i]);
         printf("\n");
 
@@ -175,63 +188,74 @@ void ZExample::code(int argc, char *argv[])
         bool isSmart;
         bool isNormal;
         bool isWeightedGrouping;
-
+        std::shared_ptr<MatrixFactory> matrixFactory = std::make_shared<CauchyMatrixFactory>();
+        if (extended) matrixFactory = std::make_shared<ExtendedCauchyMatrixFactory>();
         switch(stra)
         {
         case 0:
             // natual dumb
             isSmart = false;
             isNormal = false;
-            zc = (ZCode*) new ZCauchy(K,M,W,arr,isSmart,isNormal,packetsize);
+            zc = (ZCode*) new ZCauchy(K,M,W,arr,isSmart,isNormal,packetsize, matrixFactory);
             break;
         case 1:
             // natual smart
             isSmart = true;
             isNormal = false;
-            zc = (ZCode*) new ZCauchy(K,M,W,arr,isSmart,isNormal,packetsize);
+            zc = (ZCode*) new ZCauchy(K,M,W,arr,isSmart,isNormal,packetsize, matrixFactory);
             break;
         case 2:
             // natual grouping unweighed
             isNormal = false;
             isWeightedGrouping = false;
-            zc = (ZCode*) new ZGrouping(K,M,W,arr,isNormal,isWeightedGrouping,packetsize);
+            zc = (ZCode*) new ZGrouping(K,M,W,arr,isNormal,isWeightedGrouping,packetsize, matrixFactory);
             break;
         case 3:
             // natual grouping weighted
             isNormal = false;
             isWeightedGrouping = true;
-            zc = (ZCode*) new ZGrouping(K,M,W,arr,isNormal,isWeightedGrouping,packetsize);
+            zc = (ZCode*) new ZGrouping(K,M,W,arr,isNormal,isWeightedGrouping,packetsize, matrixFactory);
             break;
         case 4:
+            if (!extended){
             // normal dumb
             isSmart = false;
             isNormal = true;
-            zc = (ZCode*) new ZCauchy(K,M,W,arr,isSmart,isNormal,packetsize);
+            zc = (ZCode*) new ZCauchy(K,M,W,arr,isSmart,isNormal,packetsize, matrixFactory);
             break;
+            }
         case 5:
+            if (!extended) {
             // normal smart
             isSmart = true;
             isNormal = true;
-            zc = (ZCode*) new ZCauchy(K,M,W,arr,isSmart,isNormal,packetsize);
+            zc = (ZCode*) new ZCauchy(K,M,W,arr,isSmart,isNormal,packetsize, matrixFactory);
             break;
+            }
         case 6:
+            if (!extended) {
             // normal unweighted
             isNormal = true;
             isWeightedGrouping = false;
-            zc = (ZCode*) new ZGrouping(K,M,W,arr,isNormal,isWeightedGrouping,packetsize);
+            zc = (ZCode*) new ZGrouping(K,M,W,arr,isNormal,isWeightedGrouping,packetsize, matrixFactory);
             break;
+            }
         case 7:
+            if (!extended) {
             // normal weighted
             isNormal = true;
             isWeightedGrouping = true;
-            zc = (ZCode*) new ZGrouping(K,M,W,arr,isNormal,isWeightedGrouping,packetsize);
+            zc = (ZCode*) new ZGrouping(K,M,W,arr,isNormal,isWeightedGrouping,packetsize, matrixFactory);
             break;
+            }
         default:
             printf("Unknown strategy, exiting...\n");
             exit(0);
         }
         zc->test_speed();
     }
-    else
-        printf("usage: packetsize strategy[0..7]\n");
+    else {
+      if (extended) printf("usage: packetsize strategy[0..4]\n");
+      else printf("usage: packetsize strategy[0..7]\n");
+    }
 }
