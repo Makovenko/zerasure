@@ -33,3 +33,6 @@
 
 # qt user files
 *.user*
+
+# build
+zerasure
