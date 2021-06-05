@@ -259,11 +259,8 @@ int *ecauchy_xy_coding_matrix(int k, int m, int w, int *X, int *Y, int *R, int *
   index = 0;
   for (i = 0; i < m; i++) {
     for (j = 0; j < k; j++) {
-//        printf("X[%d] = %d, Y[%d] = %d\n",i,X[i],j,Y[j]);
-      printf("For index %d: x = %d, y = %d, r = %d, s = %d\n", index, X[i], Y[j], R[i], S[j]);
       int num = galois_single_multiply(R[i], S[j], w);
       int den = X[i]^Y[j];
-      printf("For index %d: numerator %d, denominator %d\n", index, num, den);
       matrix[index] = galois_single_divide(num, den, w);
       index++;
     }

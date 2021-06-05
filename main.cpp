@@ -1,11 +1,13 @@
 /*
 main.cpp
 Tianli Zhou
+Mykyta Makovenko
 
 Fast Erasure Coding for Data Storage: A Comprehensive Study of the Acceleration Techniques
+Revisiting the Optimization of CauchyReed-Solomon Coding Matrix for Fault-Tolerant Data Storage
 
-Revision 1.0
-Mar 20, 2019
+Revision 1.1
+April, 2021
 
 Tianli Zhou
 Department of Electrical & Computer Engineering
@@ -13,7 +15,14 @@ Texas A&M University
 College Station, TX, 77843
 zhoutianli01@tamu.edu
 
+Mykyta Makovenko
+Department of Industrial & Systems Engineering
+Texas A&M University
+College Station, TX, 77843
+makovenko@tamu.edu
+
 Copyright (c) 2019, Tianli Zhou
+Copyright (c) 2021, Mykyta Makovenko
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -21,16 +30,16 @@ modification, are permitted provided that the following conditions
 are met:
 
 - Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
+notice, this list of conditions and the following disclaimer.
 
 - Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in
-  the documentation and/or other materials provided with the
-  distribution.
+notice, this list of conditions and the following disclaimer in
+the documentation and/or other materials provided with the
+distribution.
 
 - Neither the name of the Texas A&M University nor the names of its
-  contributors may be used to endorse or promote products derived
-  from this software without specific prior written permission.
+contributors may be used to endorse or promote products derived
+from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT

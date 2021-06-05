@@ -19,7 +19,7 @@ CXX=g++
 VEC=VEC128
 LEMON_DIR=../usr/local/include
 CFLAGS=-mavx2 -msse4 -O2 -D$(VEC)
-CXXFLAGS=-mavx2 -msse4 -O2 -D$(VEC) -I$(LEMON_DIR)
+CXXFLAGS=-mavx2 -msse4 -O2 -D$(VEC) -I$(LEMON_DIR) -std=c++17
 
 zerasure: $(OBJS) mfile
 	$(CXX) -o zerasure $(OBJS)
