@@ -51,3 +51,9 @@ extern int *cauchy_xy_coding_matrix(int k, int m, int w, int *x, int *y);
 extern void cauchy_improve_coding_matrix(int k, int m, int w, int *matrix);
 extern int *cauchy_good_general_coding_matrix(int k, int m, int w);
 extern int cauchy_n_ones(int n, int w);
+
+/*
+ Added by Mykyta Makovenko,
+ April 2021
+ */
+extern int *ecauchy_xy_coding_matrix(int k, int m, int w, int *X, int *Y, int *R, int *S);

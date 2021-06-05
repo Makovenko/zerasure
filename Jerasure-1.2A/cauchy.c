@@ -244,6 +244,34 @@ int *cauchy_good_general_coding_matrix(int k, int m, int w)
   }
 }
 
+/*
+ The following function was added by Mykyta Makovenko,
+ April 2021
+ */
+
+int *ecauchy_xy_coding_matrix(int k, int m, int w, int *X, int *Y, int *R, int *S)
+{
+  int index, i, j;
+  int *matrix;
+
+  matrix = talloc(int, k*m);
+  if (matrix == NULL) { return NULL; }
+  index = 0;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < k; j++) {
+//        printf("X[%d] = %d, Y[%d] = %d\n",i,X[i],j,Y[j]);
+      printf("For index %d: x = %d, y = %d, r = %d, s = %d\n", index, X[i], Y[j], R[i], S[j]);
+      int num = galois_single_multiply(R[i], S[j], w);
+      int den = X[i]^Y[j];
+      printf("For index %d: numerator %d, denominator %d\n", index, num, den);
+      matrix[index] = galois_single_divide(num, den, w);
+      index++;
+    }
+  }
+  return matrix;
+}
+
+
 static int cbest_2[3] = { 1, 2, 3 };
 static int cbest_3[7] = { 1, 2, 5, 4, 7, 3, 6 };
 
