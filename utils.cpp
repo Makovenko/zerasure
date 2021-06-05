@@ -142,7 +142,7 @@ void free2dSchedule5(int **p)
 char** malloc2d(int row, int col)
 {
     printf("Malloc... 2d %d x %d\n",row, col);
-    char ** ret = (char**) aligned_alloc(32,row * sizeof(char*));
+    char ** ret = (char**) aligned_alloc(32,row * 4 * sizeof(char*));
 
     assert(ret != NULL);
     for(int i = 0;i<row;i++)
